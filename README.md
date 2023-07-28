@@ -4,3 +4,4 @@ Sometimes the toilet is somewhere far away from your workplace and you can't rea
 This project helps to cope with this.
 
 You need a NodeMCU (ESP8266) with Lua support. Ambient light sensor TSL2561. A little soldering and so one.
+
