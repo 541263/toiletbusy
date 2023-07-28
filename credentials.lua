@@ -1,0 +1,3 @@
+
+SSID = "wifi"
+PASSWORD = "wifipassword"
