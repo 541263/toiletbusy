@@ -1,10 +1,7 @@
-local tsl2561 = require "tsl2561" -- ???
-local i2cID = 0 -- ???
-local SDAPIN = 2 -- pin 2 = D2 = GPIO4
+local tsl2561 = require "tsl2561"
 local SCLPIN = 1 -- pin 1 = D1 = GPIO5
-local TSL_ADDR = tsl2561.ADDRESS_FLOAT -- tsl2561.ADDRESS_GND || tsl2561.ADDRESS_VDD depends on witch gap soldered
-i2c.setup(i2cID, SDAPIN, SCLPIN, i2c.SLOW) -- i don't know if this line is needed
-tsl2561.init(SDAPIN, SCLPIN, TSL_ADDR, tsl2561.PACKAGE_T_FN_CL)
+local SDAPIN = 2 -- pin 2 = D2 = GPIO4
+local TSL_ADDR = tsl2561.ADDRESS_FLOAT -- or tsl2561.ADDRESS_GND or tsl2561.ADDRESS_VDD depends on which gap is soldered
 
 function getlux()
   toilet = nil
@@ -18,33 +15,21 @@ function getlux()
 end
 
 function sendlux(lux)
-  http.get("http://host/lights.php?lux="..lux, nil, function(code, data)
+  http.get("http://3221.ru/lights.php?lux="..lux, nil, function(code, data)
       if (code < 0) then
-        print("-")
       elseif (code == 200) then
-        print("+")
       else
-        print(code, data)
+        print(code, data) -- just for debug
       end
     end)
 end
 
 function loop()
   sendlux(getlux())
-  print(".")
 end
 
 print("set dns")
 net.dns.setdnsserver("8.8.8.8",1)
 
 print("start infinite loop ")
-
--- mytimer = tmr.create()
--- mytimer:register(5000, tmr.ALARM_AUTO, loop)
--- mytimer:start()
-
--- OR
-
-tmr.create():alarm(5000, tmr.ALARM_AUTO, loop)
-
--- sendlux(0, 65535)
+tmr.create():alarm(10000, tmr.ALARM_AUTO, loop)
