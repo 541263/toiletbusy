@@ -1,129 +1,56 @@
-local SCLPIN = 1 -- pin 1 = D1 = GPIO5
-local SDAPIN = 2 -- pin 2 = D2 = GPIO4
-local TSL1_ADDR = 0x29 -- GND
-local TSL2_ADDR = 0x39 -- FLOAT
-local I2C_ID = 0
+local SCLPIN = 1 -- pin 1 / D1 / GPIO5
+local SDAPIN = 2 -- pin 2 / D2 / GPIO4
+local TSL1_ADDR = 0x29 -- soldered to GND
+local TSL2_ADDR = 0x39 -- not soldered (FLOAT)
+local I2C_ID = 0 -- the only bus
+
+function writebyte(bus, device, reg, val)
+    i2c.start(bus)
+    i2c.address(bus, device, i2c.TRANSMITTER)
+    i2c.write(bus, reg)
+    i2c.write(bus, val)
+    i2c.stop(bus)
+end
+
+function readbyte(bus, device, reg)
+    i2c.start(bus)
+    i2c.address(bus, device, i2c.TRANSMITTER)
+    i2c.write(bus, reg)
+    i2c.stop(bus)
+    i2c.start(bus)
+    i2c.address(bus, device, i2c.RECEIVER)
+    b = i2c.read(bus, 1)
+    i2c.stop(bus)
+    return string.byte(b)
+end
 
 speed = i2c.setup(I2C_ID, SDAPIN, SCLPIN, i2c.FAST)
 
 -- light1
-
--- enable
-i2c.start(I2C_ID)
-i2c.address(I2C_ID, TSL1_ADDR, i2c.TRANSMITTER)
-i2c.write(I2C_ID, 0x80)
-i2c.write(I2C_ID, 0x03)
-i2c.stop(I2C_ID)
-
--- set timing 402ms & gain 1x
-i2c.start(I2C_ID)
-i2c.address(I2C_ID, TSL1_ADDR, i2c.TRANSMITTER)
-i2c.write(I2C_ID, 0x81)
-i2c.write(I2C_ID, 0x02)
-i2c.stop(I2C_ID)
-
--- disable
-i2c.start(I2C_ID)
-i2c.address(I2C_ID, TSL1_ADDR, i2c.TRANSMITTER)
-i2c.write(I2C_ID, 0x80)
-i2c.write(I2C_ID, 0x00)
-i2c.stop(I2C_ID)
-
--- 
+writebyte(I2C_ID, TSL1_ADDR, 0x80, 0x03) -- enable
+writebyte(I2C_ID, TSL1_ADDR, 0x81, 0x02) -- set timing 402ms & gain 1x
+writebyte(I2C_ID, TSL1_ADDR, 0x80, 0x00) -- disable
 tmr.delay(1000)
-
--- enable
-i2c.start(I2C_ID)
-i2c.address(I2C_ID, TSL1_ADDR, i2c.TRANSMITTER)
-i2c.write(I2C_ID, 0x80)
-i2c.write(I2C_ID, 0x03)
-i2c.stop(I2C_ID)
-
--- 
+writebyte(I2C_ID, TSL1_ADDR, 0x80, 0x03) -- enable
 tmr.delay(500000)
+c = readbyte(I2C_ID, TSL1_ADDR, 0x8C) -- read 0 channel (fullspectrum low)
+d = readbyte(I2C_ID, TSL1_ADDR, 0x8D) -- read 0 channel (fullspectrum high)
 
--- read 0 channel (fullspectrum low)
-i2c.start(I2C_ID)
-i2c.address(I2C_ID, TSL1_ADDR, i2c.TRANSMITTER)
-i2c.write(I2C_ID, 0x8C)
-i2c.stop(I2C_ID)
-i2c.start(I2C_ID)
-i2c.address(I2C_ID, TSL1_ADDR, i2c.RECEIVER)
-c = i2c.read(I2C_ID, 1)
-i2c.stop(I2C_ID)
+lux1=c+d*256
 
--- read 0 channel (fullspectrum high)
-i2c.start(I2C_ID)
-i2c.address(I2C_ID, TSL1_ADDR, i2c.TRANSMITTER)
-i2c.write(I2C_ID, 0x8D)
-i2c.stop(I2C_ID)
-i2c.start(I2C_ID)
-i2c.address(I2C_ID, TSL1_ADDR, i2c.RECEIVER)
-d = i2c.read(I2C_ID, 1)
-i2c.stop(I2C_ID)
-
-lux1=string.byte(c)+(string.byte(d)*256)
-
--- between sensors
-tmr.delay(10000)
+tmr.delay(10000) -- between sensors
 
 -- light2
-
--- enable
-i2c.start(I2C_ID)
-i2c.address(I2C_ID, TSL2_ADDR, i2c.TRANSMITTER)
-i2c.write(I2C_ID, 0x80)
-i2c.write(I2C_ID, 0x03)
-i2c.stop(I2C_ID)
-
--- set timing 402ms & gain 1x
-i2c.start(I2C_ID)
-i2c.address(I2C_ID, TSL2_ADDR, i2c.TRANSMITTER)
-i2c.write(I2C_ID, 0x81)
-i2c.write(I2C_ID, 0x02)
-i2c.stop(I2C_ID)
-
--- disable
-i2c.start(I2C_ID)
-i2c.address(I2C_ID, TSL2_ADDR, i2c.TRANSMITTER)
-i2c.write(I2C_ID, 0x80)
-i2c.write(I2C_ID, 0x00)
-i2c.stop(I2C_ID)
-
--- 
+writebyte(I2C_ID, TSL2_ADDR, 0x80, 0x03) -- enable
+writebyte(I2C_ID, TSL2_ADDR, 0x81, 0x02) -- set timing 402ms & gain 1x
+writebyte(I2C_ID, TSL2_ADDR, 0x80, 0x00) -- disable
 tmr.delay(1000)
-
--- enable
-i2c.start(I2C_ID)
-i2c.address(I2C_ID, TSL2_ADDR, i2c.TRANSMITTER)
-i2c.write(I2C_ID, 0x80)
-i2c.write(I2C_ID, 0x03)
-i2c.stop(I2C_ID)
-
--- 
+writebyte(I2C_ID, TSL2_ADDR, 0x80, 0x03) -- enable
 tmr.delay(500000)
+c = readbyte(I2C_ID, TSL2_ADDR, 0x8C) -- read 0 channel (fullspectrum low)
+d = readbyte(I2C_ID, TSL2_ADDR, 0x8D) -- read 0 channel (fullspectrum high)
 
--- read 0 channel (fullspectrum low)
-i2c.start(I2C_ID)
-i2c.address(I2C_ID, TSL2_ADDR, i2c.TRANSMITTER)
-i2c.write(I2C_ID, 0x8C)
-i2c.stop(I2C_ID)
-i2c.start(I2C_ID)
-i2c.address(I2C_ID, TSL2_ADDR, i2c.RECEIVER)
-e = i2c.read(I2C_ID, 1)
-i2c.stop(I2C_ID)
-
--- read 0 channel (fullspectrum high)
-i2c.start(I2C_ID)
-i2c.address(I2C_ID, TSL2_ADDR, i2c.TRANSMITTER)
-i2c.write(I2C_ID, 0x8D)
-i2c.stop(I2C_ID)
-i2c.start(I2C_ID)
-i2c.address(I2C_ID, TSL2_ADDR, i2c.RECEIVER)
-f = i2c.read(I2C_ID, 1)
-i2c.stop(I2C_ID)
-
-lux2=string.byte(e)+(string.byte(f)*256)
+lux2=c+d*256
 
 print(lux1)
 print(lux2)
