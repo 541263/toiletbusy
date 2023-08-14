@@ -23,7 +23,7 @@ if ($mysqli->connect_errno) {
 }
 
 $sensor = 'light1';
-$threshold = 10000; // light is on
+$threshold = 1000; // light is on
 $response = "";
 $id = -1;
 $lux = -1;
