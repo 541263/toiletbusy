@@ -38,8 +38,6 @@ d = readbyte(I2C_ID, TSL1_ADDR, 0x8D) -- read 0 channel (fullspectrum high)
 
 lux1=c+d*256
 
-tmr.delay(10000) -- between sensors
-
 -- light2
 writebyte(I2C_ID, TSL2_ADDR, 0x80, 0x03) -- enable
 writebyte(I2C_ID, TSL2_ADDR, 0x81, 0x02) -- set timing 402ms & gain 1x
