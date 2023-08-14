@@ -24,7 +24,7 @@ function readbyte(bus, device, reg)
     return string.byte(b)
 end
 
-speed = i2c.setup(I2C_ID, SDAPIN, SCLPIN, i2c.FAST)
+i2c.setup(I2C_ID, SDAPIN, SCLPIN, i2c.FAST)
 
 -- light1
 writebyte(I2C_ID, TSL1_ADDR, 0x80, 0x03) -- enable
@@ -35,7 +35,6 @@ writebyte(I2C_ID, TSL1_ADDR, 0x80, 0x03) -- enable
 tmr.delay(500000)
 c = readbyte(I2C_ID, TSL1_ADDR, 0x8C) -- read 0 channel (fullspectrum low)
 d = readbyte(I2C_ID, TSL1_ADDR, 0x8D) -- read 0 channel (fullspectrum high)
-
 lux1=c+d*256
 
 -- light2
@@ -47,7 +46,6 @@ writebyte(I2C_ID, TSL2_ADDR, 0x80, 0x03) -- enable
 tmr.delay(500000)
 c = readbyte(I2C_ID, TSL2_ADDR, 0x8C) -- read 0 channel (fullspectrum low)
 d = readbyte(I2C_ID, TSL2_ADDR, 0x8D) -- read 0 channel (fullspectrum high)
-
 lux2=c+d*256
 
 print(lux1)
