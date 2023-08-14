@@ -15,7 +15,7 @@ function getlux()
 end
 
 function sendlux(lux)
-  http.get("http://3221.ru/lights.php?lux="..lux, nil, function(code, data)
+  http.get("http://host/lights.php?lux="..lux, nil, function(code, data)
       if (code < 0) then
       elseif (code == 200) then
       else
